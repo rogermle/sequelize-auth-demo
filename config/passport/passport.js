@@ -1,11 +1,11 @@
 
   //load bcrypt
-  var bCrypt = require('bcryptjs');
+  const db = require("../../models");
+  const bCrypt = require('bcryptjs');
 
-  module.exports = function(passport,user){
+  module.exports = function(passport, user){
 
-  var User = user;
-  var LocalStrategy = require('passport-local').Strategy;
+  const LocalStrategy = require('passport-local').Strategy;
 
 
   passport.serializeUser(function(user, done) {
@@ -15,7 +15,7 @@
 
   // used to deserialize the user
   passport.deserializeUser(function(id, done) {
-      User.findById(id).then(function(user) {
+      db.User.findByPk(id).then(function(user) {
         if(user){
           done(null, user.get());
         }
@@ -42,7 +42,7 @@
       return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
       };
 
-       User.findOne({where: {email:email}}).then(function(user){
+       db.User.findOne({where: {email:email}}).then(function(user){
 
       if(user)
       {
@@ -60,7 +60,7 @@
         };
 
 
-        User.create(data).then(function(newUser,created){
+        db.User.create(data).then(function(newUser,created){
           if(!newUser){
             return done(null,false);
           }
@@ -97,14 +97,10 @@
   },
 
   function(req, email, password, done) {
-
-    var User = user;
-
-    var isValidPassword = function(userpass,password){
+    const isValidPassword = function(userpass,password){
       return bCrypt.compareSync(password, userpass);
-    }
-
-    User.findOne({ where : { email: email}}).then(function (user) {
+	}
+    db.User.findOne({ where : { email: email}}).then(function (user) {
 
       if (!user) {
         return done(null, false, { message: 'Email does not exist' });
@@ -116,7 +112,7 @@
 
       }
 
-      var userinfo = user.get();
+      const userinfo = user.get();
 
       return done(null,userinfo);
 
